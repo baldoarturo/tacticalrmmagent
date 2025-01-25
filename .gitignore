@@ -4,7 +4,6 @@
 *.7z
 *.zip
 *.py
-*.sh
 *.syso
 *.ico
 *.bmp
