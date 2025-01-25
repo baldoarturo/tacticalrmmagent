@@ -27,21 +27,21 @@ jobs:
         run: |
           ARCHS='amd64 386 arm64 arm'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-linux-${i}
+            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-linux-${i}-${{ github.ref_name }}
           done
       
       - name: Build for Windows
         run: |
           ARCHS='amd64 386'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-windows-${i}.exe
+            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-windows-${i}-${{ github.ref_name }}.exe
           done
       
       - name: Build for MacOS
         run: |
           ARCHS='amd64 arm64'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-macos-${i}
+            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-macos-${i}-${{ github.ref_name }}
           done
 
       - name: Publich release
