@@ -62,6 +62,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Ensure mac agent compiles
+        run: ls
+  
       - name: Upload release
         uses: alexellis/upload-assets@0.4.0
         env:
