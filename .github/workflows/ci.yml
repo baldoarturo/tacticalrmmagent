@@ -41,7 +41,7 @@ jobs:
         run: |
           ARCHS='arm64'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-macos-${i}
+             cd rmmagent && env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-macos-${i}
           done
 
       - name: release
@@ -60,4 +60,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          asset_paths: '["rmmagent*"]'
+          asset_paths: '["rmmagent/rmmagent-*"]'
