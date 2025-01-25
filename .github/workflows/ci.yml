@@ -2,15 +2,8 @@ name: Build and publish
 
 on:
   push:
-    branches:
+    tags: 
       - "*"
-  pull_request:
-    branches:
-      - "*"
-
-permissions:
-  contents: write
-  packages: write
   
 jobs:
 
@@ -18,6 +11,9 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Build and publish
+    permissions:
+      contents: write
+      packages: write
 
     steps:
 
@@ -27,51 +23,31 @@ jobs:
         with:
           go-version: '1.20.13'
 
-      # - name: Ensure linux agent compiles
-      #   run: |
-      #     ARCHS='amd64 386 arm64 arm'
-      #     for i in ${ARCHS}; do
-      #       env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-linux-${i}
-      #     done
-      
-      # - name: Ensure windows agent compiles
-      #   run: |
-      #     ARCHS='amd64 386'
-      #     for i in ${ARCHS}; do
-      #       env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-windows-${i}
-      #     done
-      
-      - name: Ensure mac agent compiles
+      - name: Build for Linux
         run: |
-          ARCHS='arm64'
+          ARCHS='amd64 386 arm64 arm'
+          for i in ${ARCHS}; do
+            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-linux-${i}
+          done
+      
+      - name: Build for Windows
+        run: |
+          ARCHS='amd64 386'
+          for i in ${ARCHS}; do
+            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-windows-${i}.exe
+          done
+      
+      - name: Build for MacOS
+        run: |
+          ARCHS='amd64 arm64'
           for i in ${ARCHS}; do
             env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-macos-${i}
           done
 
-      - name: Clear old relase with same tag
-        uses: dev-drprasad/delete-tag-and-release@v1.1
+      - name: Publich release
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          delete_release: true
-          github_token: ${{ github.token }}
-  
-      - name: Create new release
-        uses: actions/create-release@v1
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: ${{ github.ref_name }}
-          tag_name: ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Ensure mac agent compiles
-        run: ls
-  
-      - name: Upload release
-        uses: alexellis/upload-assets@0.4.0
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          asset_paths: '["rmmagent-*"]'
+          allowUpdates: true
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          artifacts: "rmmagent-*"
