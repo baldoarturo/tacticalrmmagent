@@ -67,4 +67,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          asset_paths: '["rmmagent/rmmagent-*"]'
+          asset_paths: '["rmmagent-*"]'
