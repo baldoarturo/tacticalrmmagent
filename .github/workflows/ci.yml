@@ -11,7 +11,7 @@ on:
 jobs:
 
   build:
-    
+
     runs-on: ubuntu-latest
     name: Run tests
 
@@ -47,3 +47,20 @@ jobs:
             mv rmmagent rmmagent-macos-${ARCHS}
           done
 
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: upload linux artifact
+        uses: alexellis/upload-assets@0.4.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          asset_paths: '["rmmagent*"]'
