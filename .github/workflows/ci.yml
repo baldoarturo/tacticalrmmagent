@@ -28,7 +28,7 @@ jobs:
           ARCHS='amd64 386 arm64 arm'
           for i in ${ARCHS}; do
             env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-linux-${ARCHS}
+            mv rmmagent rmmagent-linux-${i}
           done
       
       - name: Ensure windows agent compiles
@@ -36,7 +36,7 @@ jobs:
           ARCHS='amd64 386'
           for i in ${ARCHS}; do
             env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-windows-${ARCHS}
+            mv rmmagent rmmagent-windows-${i}
           done
       
       - name: Ensure mac agent compiles
@@ -44,7 +44,7 @@ jobs:
           ARCHS='arm64'
           for i in ${ARCHS}; do
             env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-macos-${ARCHS}
+            mv rmmagent rmmagent-macos-${i}
           done
 
       - name: release
