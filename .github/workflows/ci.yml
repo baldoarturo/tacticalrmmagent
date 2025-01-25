@@ -48,6 +48,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
+          removeArtifacts: true
           tag: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           artifacts: "rmmagent-*"
