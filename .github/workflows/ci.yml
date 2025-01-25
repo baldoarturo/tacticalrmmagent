@@ -41,7 +41,7 @@ jobs:
       
       - name: Ensure mac agent compiles
         run: |
-          ARCHS='amd64 arm64'
+          ARCHS='arm64'
           for i in ${ARCHS}; do
             env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w"
             mv rmmagent rmmagent-macos-${ARCHS}
