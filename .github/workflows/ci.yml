@@ -1,42 +1,53 @@
-name: Run tests
+name: Build and publish
 
 on:
   push:
-    branches:
+    tags: 
       - "*"
-  pull_request:
-    branches:
-      - "*"
-
+  
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
-    name: Run tests
+    name: Build and publish
+    permissions:
+      contents: write
+      packages: write
 
     steps:
-      - uses: actions/checkout@v3
 
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.20.4'
+          go-version: '1.20.13'
 
-      - name: Ensure linux agent compiles
+      - name: Build for Linux
         run: |
           ARCHS='amd64 386 arm64 arm'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w"
+            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-linux-${i}
           done
       
-      - name: Ensure windows agent compiles
+      - name: Build for Windows
         run: |
           ARCHS='amd64 386'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w"
+            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-windows-${i}.exe
           done
       
-      - name: Ensure mac agent compiles
+      - name: Build for MacOS
         run: |
           ARCHS='amd64 arm64'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w"
+            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" -o rmmagent-macos-${i}
           done
+
+      - name: Publich release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          tag: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          artifacts: "rmmagent-*"
