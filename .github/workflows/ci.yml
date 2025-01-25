@@ -41,7 +41,7 @@ jobs:
         run: |
           ARCHS='arm64'
           for i in ${ARCHS}; do
-             cd rmmagent && env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-macos-${i}
+            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-macos-${i}
           done
 
       - name: release
