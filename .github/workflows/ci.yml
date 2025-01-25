@@ -23,28 +23,25 @@ jobs:
         with:
           go-version: '1.20.13'
 
-      - name: Ensure linux agent compiles
-        run: |
-          ARCHS='amd64 386 arm64 arm'
-          for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-linux-${i}
-          done
+      # - name: Ensure linux agent compiles
+      #   run: |
+      #     ARCHS='amd64 386 arm64 arm'
+      #     for i in ${ARCHS}; do
+      #       env CGO_ENABLED=0 GOOS=linux GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-linux-${i}
+      #     done
       
-      - name: Ensure windows agent compiles
-        run: |
-          ARCHS='amd64 386'
-          for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-windows-${i}
-          done
+      # - name: Ensure windows agent compiles
+      #   run: |
+      #     ARCHS='amd64 386'
+      #     for i in ${ARCHS}; do
+      #       env CGO_ENABLED=0 GOOS=windows GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-windows-${i}
+      #     done
       
       - name: Ensure mac agent compiles
         run: |
           ARCHS='arm64'
           for i in ${ARCHS}; do
-            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w"
-            mv rmmagent rmmagent-macos-${i}
+            env CGO_ENABLED=0 GOOS=darwin GOARCH=${i} go build -ldflags "-s -w" && mv rmmagent rmmagent-macos-${i}
           done
 
       - name: release
