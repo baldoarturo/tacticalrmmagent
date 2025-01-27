@@ -101,64 +101,75 @@ mesh_fqdn=$2
 mesh_id=$3
 
 function update_agent() {
-        systemctl stop tacticalagent
-
-        cp /tmp/temp_rmmagent /usr/local/bin/rmmagent
-        rm /tmp/temp_rmmagent
-
-        systemctl start tacticalagent
+    echo "Downloading agent for ${system}...."
+    wget "https://github.com/baldoarturo/tacticalrmmagent/releases/download/${version}-unsigned/rmmagent-linux-${system}-${version}-unsigned" -O /tmp/rmmagent
+    echo "Stopping service..."
+    systemctl stop tacticalagent
+    echo "Updating..."
+    cp /tmp/rmmagent /usr/local/bin/rmmagent
+    rm /tmp/rmmagent
+    echo "Starting service..."
+    systemctl start tacticalagent
 }
 function install_agent() {
-    # cp /tmp/temp_rmmagent /usr/local/bin/rmmagent
-    wget "https://github.com/baldoarturo/tacticalrmmagent/releases/download/v2.8.0-unsigned/rmmagent-linux-${system}-${version}-unsigned" -O /tmp/temp_rmmagent
-    chmod +x /tmp/temp_rmmagent
-    /tmp/temp_rmmagent -m install -api $rmm_url -client-id $rmm_client_id -site-id $rmm_site_id -agent-type $rmm_agent_type -auth $rmm_auth
-    rm /tmp/temp_rmmagent
-    cat << "EOF" > /etc/systemd/system/tacticalagent.service
-[Unit]
-Description=Tactical RMM Linux Agent
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/rmmagent -m svc
-User=root
-Group=roots
-Restart=always
-RestartSec=5s
-LimitNOFILE=1000000
-KillMode=process
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  systemctl daemon-reload
-  systemctl enable --now tacticalagent
-  systemctl start tacticalagent
+    echo "Downloading agent for ${system}...."
+    wget "https://github.com/baldoarturo/tacticalrmmagent/releases/download/${version}-unsigned/rmmagent-linux-${system}-${version}-unsigned" -O /tmp/rmmagent
+    chmod +x /tmp/rmmagent
+    /tmp/rmmagent -m install -api $rmm_url -client-id $rmm_client_id -site-id $rmm_site_id -agent-type $rmm_agent_type -auth $rmm_auth
+    echo "Creating service..."
+    rm /tmp/rmmagent
+    echo "[Unit]">> /etc/systemd/system/tacticalagent.service
+    echo "Description=Tactical RMM Linux Agent">> /etc/systemd/system/tacticalagent.service
+    echo "[Service]">> /etc/systemd/system/tacticalagent.service
+    echo "Type=simple">> /etc/systemd/system/tacticalagent.service
+    echo "ExecStart=/usr/local/bin/rmmagent -m svc">> /etc/systemd/system/tacticalagent.service
+    echo "User=root">> /etc/systemd/system/tacticalagent.service
+    echo "Group=roots">> /etc/systemd/system/tacticalagent.service
+    echo "Restart=always">> /etc/systemd/system/tacticalagent.service
+    echo "RestartSec=5s">> /etc/systemd/system/tacticalagent.service
+    echo "LimitNOFILE=1000000">> /etc/systemd/system/tacticalagent.service
+    echo "KillMode=process">> /etc/systemd/system/tacticalagent.service
+    echo "[Install]">> /etc/systemd/system/tacticalagent.service
+    echo "WantedBy=multi-user.target">> /etc/systemd/system/tacticalagent.service
+    echo "Reloading and enabling service..."
+    systemctl daemon-reload
+    systemctl enable --now tacticalagent
+    echo "Starting service..."
+    systemctl start tacticalagent
 }
 
 function install_mesh() {
-    ## Installing meshcentral_url
+    echo "Downloading Meshcentral agent for ${system}...."
     wget -O /tmp/meshagent $mesh_url
     chmod +x /tmp/meshagent
     mkdir /opt/tacticalmesh
+    echo "Installing ..."
     /tmp/meshagent -install --installPath="/opt/tacticalmesh"
     rm /tmp/meshagent
     rm /tmp/meshagent.msh
 }
 
 function uninstall_mesh() {
-    (wget "https://$mesh_fqdn/meshagents?script=1" -O /tmp/meshinstall.sh || wget "https://$mesh_fqdn/meshagents?script=1" --no-proxy -O /tmp/meshinstall.sh)
+    echo "Downloading uninstaller ..."
+    wget "https://$mesh_fqdn/meshagents?script=1" -O /tmp/meshinstall.sh || wget "https://$mesh_fqdn/meshagents?script=1" --no-proxy -O /tmp/meshinstall.sh
     chmod 755 /tmp/meshinstall.sh
-    (/tmp/meshinstall.sh uninstall https://$mesh_fqdn $mesh_id || /tmp/meshinstall.sh uninstall uninstall uninstall https://$mesh_fqdn $mesh_id)
+    echo "Unstalling ..."
+    /tmp/meshinstall.sh uninstall https://$mesh_fqdn $mesh_id || /tmp/meshinstall.sh uninstall uninstall uninstall https://$mesh_fqdn $mesh_id
     rm /tmp/meshinstall.sh
     rm meshagent
     rm meshagent.msh
 }
 
 function uninstall_agent() {
+    echo "Stopping  service ..."
     systemctl stop tacticalagent
+    echo "Disabling service ..."
     systemctl disable tacticalagent
+    echo "Removing service ..."
     rm /etc/systemd/system/tacticalagent.service
+    echo "Reloading ..."
     systemctl daemon-reload
+    echo "Unstalling ..."
     rm /usr/local/bin/rmmagent
     rm /etc/tacticalagent
 }
